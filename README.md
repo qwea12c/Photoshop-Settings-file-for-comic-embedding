@@ -2,6 +2,7 @@
 > **该工具一直都是自用为主没经过广泛测试，有问题欢迎提交**
 # 实现功能（未全部列出
 支持彩色漫画、黑白漫画、美漫、条漫  
+支持LabelPlus和传统嵌字方式  
 自动判断彩色黑白图片  
 自动缩小框内字避免过大出框  
 彩图自动修改文字颜色为原图字体颜色  
@@ -17,7 +18,7 @@
 
 3.将Scripts.7z内的所有文件解压到ps软件目录下，位置为“你的ps软件根目录\Presets\Scripts”  
 
-4.需要用到非LabelPlus文本也就是传统txt稿子嵌字功能需先安装[AutoHotkey](https://www.autohotkey.com/)软件，然后下载保留“非lp文本导入.ahk”文件  
+4.需要用到非LabelPlus文本也就是传统txt稿子嵌字功能需先安装[AutoHotkey](https://www.autohotkey.com/)软件，然后下载保留[非lp文本导入.ahk](https://github.com/qwea12c/Photoshop-Settings-file-for-comic-embedding/blob/main/%E9%9D%9Elp%E6%96%87%E6%9C%AC%E5%AF%BC%E5%85%A5.ahk)文件  
 
 5.默认配置文件需要[toolbox字体包](https://github.com/qwea12c/Photoshop-Settings-file-for-comic-embedding/releases/tag/font_v2.6)和[jojo热情字体包v1.1（2021）](https://github.com/jqk4388/JOJOHOTfont/releases/tag/1.1)，需全部安装里面的字体  
 
