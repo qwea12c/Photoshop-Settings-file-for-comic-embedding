@@ -1,5 +1,15 @@
 > [!IMPORTANT]  
 > **该工具一直都是自用为主没经过广泛测试，有问题欢迎提交**
+# 实现功能（未全部列出
+支持彩色漫画、黑白漫画、美漫、条漫  
+自动判断彩色黑白图片  
+自动缩小框内字避免过大出框  
+彩图自动修改文字颜色为原图字体颜色  
+一键合并跨页图
+一键
+高效调节字符和段落样式
+高效修改文字图层样式
+
 # 安装方式
 1.首先你需要安装Photoshop，最好是2019版本可直接覆盖配置文件无需自己手动修改（因本人用2019ps故只提供此版本的配置文件打包）理论来说只要是cc2015以上版本皆可通用，但细微地方需要能自己动手调试  
 
@@ -9,7 +19,7 @@
 
 4.需要用到非LabelPlus文本也就是传统txt稿子嵌字功能需先安装[AutoHotkey](https://www.autohotkey.com/)软件，然后下载保留“非lp文本导入.ahk”文件  
 
-5.默认配置文件需要toolbox字体包和[jojo热情字体包v1.1（2021）](https://github.com/jqk4388/JOJOHOTfont/releases/tag/1.1)，需全部安装里面的字体  
+5.默认配置文件需要[toolbox字体包](https://github.com/qwea12c/Photoshop-Settings-file-for-comic-embedding/releases/tag/font_v2.6)和[jojo热情字体包v1.1（2021）](https://github.com/jqk4388/JOJOHOTfont/releases/tag/1.1)，需全部安装里面的字体  
 
 6.打开cmd输入命令“subst z: d:\1”，d:\1替换为你要保存导出文件的目录地址，要求该目录下要新建好名为jpg，png，Tiff的三个空文件夹。因为一键保存功能已经设置好文件存储位置“Z:\jpg，Z:\png，Z:\Tiff”，所以需要虚拟一个该磁盘的目录，本人是通过Ramdisk虚拟的z盘
 
