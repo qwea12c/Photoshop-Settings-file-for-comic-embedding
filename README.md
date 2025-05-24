@@ -14,6 +14,7 @@
 6.打开cmd输入命令“subst z: d:\1”，d:\1替换为你要保存导出文件的目录地址，要求该目录下要新建好名为jpg，png，Tiff的三个空文件夹。因为一键保存功能已经设置好文件存储位置“Z:\jpg，Z:\png，Z:\Tiff”，所以需要虚拟一个该磁盘的目录，本人是通过Ramdisk虚拟的z盘
 
 # 使用方法
+![ps界面](https://github.com/user-attachments/assets/e35b0b42-e1c8-4d59-b688-93ec5848825e)
 
 
 # 感谢
