@@ -26,8 +26,8 @@
 
 # 使用方法
 ![ps界面](https://github.com/user-attachments/assets/e35b0b42-e1c8-4d59-b688-93ec5848825e)
+![动作](动作列表v2.6rc4.jpg)  
 b站的一些使用演示视频，功能啥的可以对照视频慢慢研究
-![动作](动作列表v2.6rc4.jpg)
 https://space.bilibili.com/2521037
 
 
