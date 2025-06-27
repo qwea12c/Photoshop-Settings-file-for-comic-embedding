@@ -19,7 +19,7 @@
 # 安装方式
 1.首先你需要安装Photoshop，最好是2019版本可直接覆盖配置文件无需自己手动修改（因本人用2019ps故只提供此版本的配置文件打包）理论来说只要是cc2015以上版本皆可通用，但细微地方需要能自己动手调试  
 
-2.将[最新版](https://github.com/qwea12c/Photoshop-Settings-file-for-comic-embedding/releases/latest)中的Adobe Photoshop CC 2019 Settings.7z内的文件夹解压到系统个人ps设置目录下（记得保存自己的配置文件）默认目录为“C:\Users\[你的用户名]\AppData\Roaming\Adobe\Adobe Photoshop CC 2019”  
+2.将[最新版](https://github.com/qwea12c/Photoshop-Settings-file-for-comic-embedding/releases/latest)中的Adobe Photoshop CC 2019 Settings.7z内的文件夹解压到系统个人ps设置目录下（记得保存自己的配置文件）默认目录为“C:\Users\\[你的用户名]\AppData\Roaming\Adobe\Adobe Photoshop CC 2019”记得打开显示隐藏文件否则看不到  
 
 3.将[最新版](https://github.com/qwea12c/Photoshop-Settings-file-for-comic-embedding/releases/latest)中的Scripts.7z内的所有文件解压到ps软件目录下，位置为“你的ps软件根目录\Presets\Scripts”  
 
