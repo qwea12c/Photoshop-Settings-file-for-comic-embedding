@@ -24,8 +24,8 @@ var I18n;
     I18n.APP_NAME = "LabelPlus Script";
     I18n.BUTTON_RUN = "导入";
     I18n.BUTTON_CANCEL = "关闭";
-    I18n.BUTTON_LOAD = "加载配置";
-    I18n.BUTTON_SAVE = "保存配置";
+    I18n.BUTTON_LOAD = "加载";
+    I18n.BUTTON_SAVE = "保存";
     I18n.BUTTON_RESET = "还原配置";
     I18n.PANEL_INPUT = "输入";
     I18n.PANEL_OUTPUT = "输出";
@@ -33,10 +33,13 @@ var I18n;
     I18n.PANEL_AUTOMATION = "自动化";
     I18n.PANEL_TEMPLATE_SETTING = "文档模板设置";
     I18n.RB_TEMPLATE_AUTO = "自动";
+    I18n.RB_TEMPLATE_1 = "自定1";
+    I18n.RB_TEMPLATE_2 = "自定2";
     I18n.RB_TEMPLATE_NO = "不使用模板（已淘汰不兼容改版）";
     I18n.RB_TEMPLATE_CUSTOM = "自定义模板";
     I18n.LABEL_TEXT_FILE = "LabelPlus文本:";
     I18n.LABEL_SOURCE = "图源文件夹:";
+    I18n.LABEL_OVERLAY_MANUAL_SOURCE = "涂白文件夹:";
     I18n.LABEL_TARGET = "输出文件夹:";
     I18n.LABEL_SETTING = "存取配置";
     I18n.LABEL_SELECT_IMG = "导入图片选择";
@@ -55,7 +58,7 @@ var I18n;
     I18n.CHECKBOX_SET_LEADING = "行距";
     I18n.LABEL_TEXT_DIRECTION = "文字方向：";
     I18n.LIST_TEXT_DIT_ITEMS = ["默认", "横向", "纵向"];
-    I18n.CHECKBOX_OLD_STYLE = "使用垂直叹号（旧样式）";
+    I18n.CHECKBOX_OLD_STYLE = "！直立叹号（旧样式）";
     I18n.CHECKBOX_NO_LAYER_GROUP = "不对图层进行分组（淘汰）";
     I18n.CHECKBOX_DIALOG_OVERLAY = "创建框内预涂白11选区";
     I18n.LABEL_DIALOG_OVERLAY_GROUP = "指定需要涂白的分组(例如: 框内,心理)：";
@@ -67,6 +70,7 @@ var I18n;
     I18n.ERROR_FILE_OPEN_FAIL = "文件打开失败，请检查PS是否能正确打开该文件！";
     I18n.ERROR_FILE_SAVE_FAIL = "文件保存失败，请检查是否有磁盘操作权限、磁盘空间是否充足。";
     I18n.ERROR_NOT_FOUND_SOURCE = "未找到图源文件夹";
+    I18n.ERROR_NOT_FOUND_OVERLAY_MANUAL_SOURCE = "未找到涂白文件夹";
     I18n.ERROR_NOT_FOUND_TARGET = "未找到目标文件夹";
     I18n.ERROR_NOT_FOUND_LPTEXT = "未找到LabelPlus文本文件";
     I18n.ERROR_NOT_FOUND_TEMPLATE = "未找到Photoshop模板文件";
@@ -91,10 +95,13 @@ var I18n;
         I18n.PANEL_AUTOMATION = "Automation";
         I18n.PANEL_TEMPLATE_SETTING = "Document Template Setting";
         I18n.RB_TEMPLATE_AUTO = "Auto";
+        I18n.RB_TEMPLATE_1 = "Custom1";
+        I18n.RB_TEMPLATE_2 = "Custom2";
         I18n.RB_TEMPLATE_NO = "No Template";
         I18n.RB_TEMPLATE_CUSTOM = "Custom Template";
         I18n.LABEL_TEXT_FILE = "LabelPlus Text:";
         I18n.LABEL_SOURCE = "Image Source:";
+        I18n.LABEL_OVERLAY_MANUAL_SOURCE = "Overlay Manual Source:";
         I18n.LABEL_TARGET = "Output Folder:";
         I18n.LABEL_SETTING = "Setting";
         I18n.LABEL_SELECT_IMG = "Select Image";
@@ -125,6 +132,7 @@ var I18n;
         I18n.ERROR_FILE_OPEN_FAIL = "open file failed, please confirm whether Photoshop can open the file.";
         I18n.ERROR_FILE_SAVE_FAIL = "File saving failed, please check whether you have disk operation permission and whether the disk space is sufficient.";
         I18n.ERROR_NOT_FOUND_SOURCE = "Image Source Folder Not Found!";
+        I18n.ERROR_NOT_FOUND_OVERLAY_MANUAL_SOURCE = "Overlay Manual Source Folder Not Found!";
         I18n.ERROR_NOT_FOUND_TARGET = "Output PSD Folder Not Found!";
         I18n.ERROR_NOT_FOUND_LPTEXT = "LabelPlus Text File Not Found!";
         I18n.ERROR_NOT_FOUND_TEMPLATE = "Photoshop template file not found!";
@@ -141,7 +149,7 @@ var I18n;
 })(I18n || (I18n = {}));
 var LabelPlus;
 (function (LabelPlus) {
-    LabelPlus.VERSION = "1.7.4——lcq自用瞎改版v2.6rc12";
+    LabelPlus.VERSION = "1.7.4——lcq自用瞎改版v2.7rc3";
 })(LabelPlus || (LabelPlus = {}));
 var LabelPlus;
 (function (LabelPlus) {
@@ -155,8 +163,9 @@ var LabelPlus;
     var OptionDocTemplate;
     (function (OptionDocTemplate) {
         OptionDocTemplate[OptionDocTemplate["Auto"] = 0] = "Auto";
-        OptionDocTemplate[OptionDocTemplate["No"] = 1] = "No";
-        OptionDocTemplate[OptionDocTemplate["Custom"] = 2] = "Custom";
+        OptionDocTemplate[OptionDocTemplate["Custom1"] = 1] = "Custom1";
+        OptionDocTemplate[OptionDocTemplate["Custom2"] = 2] = "Custom2";
+        OptionDocTemplate[OptionDocTemplate["Custom"] = 3] = "Custom";
     })(OptionDocTemplate = LabelPlus.OptionDocTemplate || (LabelPlus.OptionDocTemplate = {}));
     ; // auto choose preset template/no use template/custom template
     var OptionOutputType;
@@ -182,6 +191,7 @@ var LabelPlus;
         function CustomOptions() {
             this.source = ""; // images source folder
             this.target = ""; // images target folder
+            this.overlayManualSource = ""; // overlay manual images source folder
             this.lpTextFilePath = ""; // path of labelplus text file
             this.imageSelected = []; // selected images
             this.groupSelected = []; // selected label group
@@ -9020,9 +9030,10 @@ var LabelPlus;
     LabelPlus.TEMPLATE_LAYER = {
         TEXT: "text",
         IMAGE: "bg",
-        DIALOG_OVERLAY: "dialog-overlay"
+        DIALOG_OVERLAY: "dialog-overlay",
+        OVERLAY_MANUAL: "overlay-manual"
     };
-    LabelPlus.image_suffix_list = [".psd", ".png", ".jpg", ".jpeg", ".tif", ".tiff"];
+    LabelPlus.image_suffix_list = ["png", "jpg", "jpeg", "psd", "tif", "tiff"];
     function GetScriptPath() {
         return $.fileName;
     }
@@ -9354,8 +9365,7 @@ var LabelPlus;
             var x = labels[i].x * width;
             var y = labels[i].y * height;
             app.activeDocument.activeLayer = bgLayer;
-            doc.selection.deselect();
-            MyAction.magicWand(x, y, tolerance, false, false, 'addTo');
+            MyAction.magicWand(x, y, tolerance, false, false, 'set');
             MyAction.magicWand(x-5, y-4, tolerance, false, false, 'addTo');
             MyAction.magicWand(x+3, y-6, tolerance, false, false, 'addTo');
             var selet11_layer = doc.artLayers.add();
@@ -9450,7 +9460,6 @@ var LabelPlus;
             var tolerance = opts.dialogOverlayTolerance;
             LabelPlus.log("dialogClear() ,contract_px=" + contract + ",tolerance=" + tolerance);
             LabelPlus.dialogClear(img.ws.doc, img.ws.bgLayer, img.ws.dialogOverlayLayer, points, tolerance, contract);
-            LabelPlus.delArrayElement(img.ws.pendingDelLayerList, img.ws.dialogOverlayLayer); // do not delete dialog-overlay-layer
         }
         for (var j = 0; j < img.labels.length; j++) {
             var l = img.labels[j];
@@ -9485,6 +9494,25 @@ var LabelPlus;
         }
         return true;
     }
+    function findOverlayManualFile(overlayManualSource, originalFilename) {
+        var exactMatchFile = new File(overlayManualSource + LabelPlus.dirSeparator + originalFilename);
+        if (exactMatchFile.exists) {
+            return exactMatchFile;
+        }
+        var nameWithoutExt = originalFilename.substring(0, originalFilename.lastIndexOf(".") + 1);
+        if (nameWithoutExt === "") {
+            nameWithoutExt = originalFilename; // 如果沒有後綴，使用原始文件名
+        }
+        for (var i = 0; i < LabelPlus.image_suffix_list.length; i++) {
+            var suffix = LabelPlus.image_suffix_list[i];
+            var candidateFile = new File(overlayManualSource + LabelPlus.dirSeparator + nameWithoutExt + suffix);
+            if (candidateFile.exists) {
+                LabelPlus.log("found overlay-manual file with different extension: " + candidateFile.fsName + " (original: " + originalFilename + ")");
+                return candidateFile;
+            }
+        }
+        return null; // 找不到匹配的文件
+    }
     function openImageWorkspace(img_filename, template_path) {
         LabelPlus.assert(opts !== null);
         var bgDoc;
@@ -9508,6 +9536,7 @@ var LabelPlus;
         var bgLayer;
         var textTemplateLayer;
         var dialogOverlayLayer;
+        var overlayManualLayer;
         var pendingDelLayerList = new Array();
         {
             for (var i = 0; i < wsDoc.artLayers.length; i++) {
@@ -9519,7 +9548,7 @@ var LabelPlus;
             }
             catch (_b) {
                 bgLayer = wsDoc.artLayers.add();
-                bgLayer.name = LabelPlus.TEMPLATE_LAYER.DIALOG_OVERLAY;
+                bgLayer.name = LabelPlus.TEMPLATE_LAYER.IMAGE;
             }
             try {
                 textTemplateLayer = wsDoc.artLayers.getByName(LabelPlus.TEMPLATE_LAYER.TEXT);
@@ -9529,6 +9558,15 @@ var LabelPlus;
                 textTemplateLayer.name = LabelPlus.TEMPLATE_LAYER.TEXT;
                 pendingDelLayerList.push(textTemplateLayer); // pending delete
             }
+            try {
+                overlayManualLayer = wsDoc.artLayers.getByName(LabelPlus.TEMPLATE_LAYER.OVERLAY_MANUAL);
+            }
+            catch (_e) {
+                overlayManualLayer = wsDoc.artLayers.add();
+                overlayManualLayer.name = LabelPlus.TEMPLATE_LAYER.OVERLAY_MANUAL;
+                overlayManualLayer.move(bgLayer, ElementPlacement.PLACEBEFORE);
+                pendingDelLayerList.push(overlayManualLayer); // pending delete
+            }
         }
         if ((bgDoc.artLayers.length == 1) && (bgDoc.layerSets.length == 0)) {
             app.activeDocument = bgDoc;
@@ -9537,13 +9575,62 @@ var LabelPlus;
             app.activeDocument = wsDoc;
             wsDoc.activeLayer = bgLayer;
             wsDoc.paste();
+            var bgcopiedLayer = bgLayer.duplicate(overlayManualLayer, ElementPlacement.PLACEBEFORE);
+                bgcopiedLayer.name = "bgcopied";
             LabelPlus.delArrayElement(pendingDelLayerList, bgLayer); // keep bg layer
+            if (opts.overlayManualSource !== "") {
+                try {
+                    var overlayManualFile = findOverlayManualFile(opts.overlayManualSource, img_filename);
+                    if (overlayManualFile !== null) {
+                        var overlayManualDoc = app.open(overlayManualFile);
+                        app.activeDocument = overlayManualDoc;
+                        overlayManualDoc.selection.selectAll();
+                        overlayManualDoc.selection.copy();
+                        overlayManualDoc.close(SaveOptions.DONOTSAVECHANGES);
+                        app.activeDocument = wsDoc;
+                        wsDoc.activeLayer = overlayManualLayer;
+                        wsDoc.paste();
+                        LabelPlus.delArrayElement(pendingDelLayerList, overlayManualLayer);
+                        LabelPlus.log("loaded overlay-manual from: " + overlayManualFile.fsName);
+                    }
+                    else {
+                        LabelPlus.log("overlay-manual file not found, fallback to copy bg layer (searched for: " + img_filename + ")");
+                    }
+                }
+                catch (e) {
+                    LabelPlus.log_err("failed to load overlay-manual image: " + e.toString() + ", fallback to copy bg layer");
+                }
+            }
         }
         else {
             app.activeDocument = bgDoc;
             var item = bgLayer;
             for (var i = 0; i < bgDoc.layers.length; i++) {
                 item = bgDoc.layers[i].duplicate(item, ElementPlacement.PLACEAFTER);
+            }
+            app.activeDocument = wsDoc;
+            if (opts.overlayManualSource !== "") {
+                try {
+                    var overlayManualFile = findOverlayManualFile(opts.overlayManualSource, img_filename);
+                    if (overlayManualFile !== null) {
+                        var overlayManualDoc = app.open(overlayManualFile);
+                        app.activeDocument = overlayManualDoc;
+                        overlayManualDoc.selection.selectAll();
+                        overlayManualDoc.selection.copy();
+                        overlayManualDoc.close(SaveOptions.DONOTSAVECHANGES);
+                        app.activeDocument = wsDoc;
+                        wsDoc.activeLayer = overlayManualLayer;
+                        wsDoc.paste();
+                        LabelPlus.delArrayElement(pendingDelLayerList, overlayManualLayer);
+                        LabelPlus.log("loaded overlay-manual from: " + overlayManualFile.fsName);
+                    }
+                    else {
+                        LabelPlus.log("overlay-manual file not found, fallback to copy bg layer (searched for: " + img_filename + ")");
+                    }
+                }
+                catch (e) {
+                    LabelPlus.log_err("failed to load overlay-manual image: " + e.toString() + ", fallback to copy bg layer");
+                }
             }
         }
         bgDoc.close(SaveOptions.DONOTSAVECHANGES);
@@ -9565,7 +9652,7 @@ var LabelPlus;
                 try {
                     l = wsDoc.artLayers.getByName(name);
                 }
-                catch (_e) { }
+                catch (_f) { }
                 ;
                 tmp.template = (l !== undefined) ? l : textTemplateLayer;
             }
@@ -9582,13 +9669,14 @@ var LabelPlus;
             bgLayer: bgLayer,
             textTemplateLayer: textTemplateLayer,
             dialogOverlayLayer: dialogOverlayLayer,
+            overlayManualLayer: overlayManualLayer,
             pendingDelLayerList: pendingDelLayerList,
             groups: groups
         };
         return ws;
     }
     function closeImage(img, saveType) {
-        if (saveType === void 0) { saveType = LabelPlus.OptionOutputType.PSD; }
+        if (saveType === void 0) { saveType = LabelPlus.OptionOutputType.TIFF; }
         LabelPlus.assert(opts !== null);
         var fileOut = new File(opts.target + LabelPlus.dirSeparator + img.name);
         var asCopy = false;
@@ -9644,6 +9732,20 @@ var LabelPlus;
         switch (opts.docTemplate) {
             case LabelPlus.OptionDocTemplate.Custom:
                 template_path = opts.docTemplateCustomPath;
+                if (!LabelPlus.FileIsExists(template_path)) {
+                    LabelPlus.log_err("error: " + I18n.ERROR_NOT_FOUND_TEMPLATE + " " + template_path);
+                    return false;
+                }
+                break;
+            case LabelPlus.OptionDocTemplate.Custom1:
+                template_path = LabelPlus.GetScriptFolder() + LabelPlus.dirSeparator + "ps_script_res" + LabelPlus.dirSeparator + "custom1.psd";
+                if (!LabelPlus.FileIsExists(template_path)) {
+                    LabelPlus.log_err("error: " + I18n.ERROR_NOT_FOUND_TEMPLATE + " " + template_path);
+                    return false;
+                }
+                break;
+            case LabelPlus.OptionDocTemplate.Custom2:
+                template_path = LabelPlus.GetScriptFolder() + LabelPlus.dirSeparator + "ps_script_res" + LabelPlus.dirSeparator + "custom2.psd";
                 if (!LabelPlus.FileIsExists(template_path)) {
                     LabelPlus.log_err("error: " + I18n.ERROR_NOT_FOUND_TEMPLATE + " " + template_path);
                     return false;
@@ -9711,6 +9813,30 @@ var LabelPlus;
         if (topts === void 0) { topts = {}; }
         var artLayerRef;
         var textItemRef;
+        function applyTextProperty(settingType, value) {
+            const d = new ActionDescriptor();
+            const r = new ActionReference();
+            r.putProperty(stringIDToTypeID("property"), stringIDToTypeID("textStyle"));
+            r.putEnumerated(stringIDToTypeID("textLayer"), stringIDToTypeID("ordinal"), stringIDToTypeID("targetEnum"));
+            d.putReference(stringIDToTypeID("null"), r);
+            const d1 = new ActionDescriptor();
+            switch (settingType) {
+                case 'reset':
+                    d1.putInteger(stringIDToTypeID("typeStyleOperationType"), 4);
+                    break;
+                case 'font':
+                    d1.putString(stringIDToTypeID("fontPostScriptName"), value);
+                    break;
+                case 'size':
+                    d1.putUnitDouble(stringIDToTypeID("size"), stringIDToTypeID("pointsUnit"), value);
+                    break;
+                case 'oldstyle':
+                    d1.putEnumerated(stringIDToTypeID("figureStyle"), stringIDToTypeID("figureStyle"), stringIDToTypeID("proportionalOldStyle"));
+                    break;
+            }
+            d.putObject(stringIDToTypeID("to"), stringIDToTypeID("textStyle"), d1);
+            executeAction(stringIDToTypeID("set"), d, DialogModes.NO);
+        }
         if (topts.template) {
             artLayerRef = topts.template.duplicate();
             app.activeDocument.activeLayer = artLayerRef;
@@ -9725,55 +9851,31 @@ var LabelPlus;
         textItemRef.contents = text;
         if (topts.direction)
             textItemRef.direction = topts.direction;
-        var d = new ActionDescriptor();
-        var r = new ActionReference();
-        r.putProperty(stringIDToTypeID("property"), stringIDToTypeID("paragraphStyle"));
-        r.putEnumerated(stringIDToTypeID("textLayer"), stringIDToTypeID("ordinal"), stringIDToTypeID("targetEnum"));
-        d.putReference(stringIDToTypeID("null"), r);
-        var d1 = new ActionDescriptor();
-        d1.putInteger(stringIDToTypeID("typeStyleOperationType"), 4);
-        d.putObject(stringIDToTypeID("to"), stringIDToTypeID("paragraphStyle"), d1);
-        executeAction(stringIDToTypeID("set"), d, DialogModes.NO);
-        if (topts.size) {
-            var d = new ActionDescriptor();
-            var r = new ActionReference();
-            r.putProperty(stringIDToTypeID("property"), stringIDToTypeID("textStyle"));
-            r.putEnumerated(stringIDToTypeID("textLayer"), stringIDToTypeID("ordinal"), stringIDToTypeID("targetEnum"));
-            d.putReference(stringIDToTypeID("null"), r);
-            var d1 = new ActionDescriptor();
-            d1.putUnitDouble(stringIDToTypeID("size"), stringIDToTypeID("pointsUnit"), topts.size);
-            d.putObject(stringIDToTypeID("to"), stringIDToTypeID("textStyle"), d1);
-            executeAction(stringIDToTypeID("set"), d, DialogModes.NO);
-        }
-        if (topts.font) {
-            var d = new ActionDescriptor();
-            var r = new ActionReference();
-            r.putProperty(stringIDToTypeID("property"), stringIDToTypeID("textStyle"));
-            r.putEnumerated(stringIDToTypeID("textLayer"), stringIDToTypeID("ordinal"), stringIDToTypeID("targetEnum"));
-            d.putReference(stringIDToTypeID("null"), r);
-            var d1 = new ActionDescriptor();
-            d1.putString(stringIDToTypeID("fontPostScriptName"), topts.font);
-            d.putObject(stringIDToTypeID("to"), stringIDToTypeID("textStyle"), d1);
-            executeAction(stringIDToTypeID("set"), d, DialogModes.NO);
-        }
-        if (topts.lgroup)
-            artLayerRef.move(topts.lgroup, ElementPlacement.PLACEATBEGINNING);
         if ((topts.lending) && (topts.lending != 0)) {
             textItemRef.useAutoLeading = true;
             textItemRef.autoLeadingAmount = topts.lending;
+            applyTextProperty('reset');
         }
-        artLayerRef.name = text;
-        if (topts.oldstyle) {
+        else {
             var d = new ActionDescriptor();
             var r = new ActionReference();
-            r.putProperty(stringIDToTypeID("property"), stringIDToTypeID("textStyle"));
+            r.putProperty(stringIDToTypeID("property"), stringIDToTypeID("paragraphStyle"));
             r.putEnumerated(stringIDToTypeID("textLayer"), stringIDToTypeID("ordinal"), stringIDToTypeID("targetEnum"));
             d.putReference(stringIDToTypeID("null"), r);
             var d1 = new ActionDescriptor();
-            d1.putEnumerated(stringIDToTypeID("figureStyle"), stringIDToTypeID("figureStyle"), stringIDToTypeID("proportionalOldStyle"));
-            d.putObject(stringIDToTypeID("to"), stringIDToTypeID("textStyle"), d1);
+            d1.putInteger(stringIDToTypeID("typeStyleOperationType"), 4);
+            d.putObject(stringIDToTypeID("to"), stringIDToTypeID("paragraphStyle"), d1);
             executeAction(stringIDToTypeID("set"), d, DialogModes.NO);
         }
+        if (topts.size)
+            applyTextProperty('size', topts.size);
+        if (topts.font)
+            applyTextProperty('font', topts.font);
+        if (topts.oldstyle)
+            applyTextProperty('oldstyle');
+        if (topts.lgroup)
+            artLayerRef.move(topts.lgroup, ElementPlacement.PLACEATBEGINNING);
+        artLayerRef.name = text;
         return artLayerRef;
     }
     function textReplaceReader(str) {
@@ -9993,8 +10095,8 @@ GenericUI.prototype.createWindow = function(ini, doc) {
   self.window = self.win = win;
   self.doc = doc;
 
-  var xOfs = 10;
-  var yy = 10;
+  var xOfs = 0;
+  var yy = 0;
 
   var hasButtons = (self.processTxt || self.cancelTxt ||
                     self.buttonOneTxt || self.buttonTwoTxt);
@@ -10070,7 +10172,7 @@ GenericUI.prototype.createWindow = function(ini, doc) {
 
     if (self.processTxt) {
       win.process = win.add('button',
-                            [btnOfs,wrect.h - 62,btnOfs+btnW,wrect.h],
+                            [380,wrect.h - 58,380+btnW,wrect.h],
                             self.processTxt);
       if (self.setDefault) {
         win.defaultElement = win.process;
@@ -10097,7 +10199,7 @@ GenericUI.prototype.createWindow = function(ini, doc) {
 
     if (self.cancelTxt) {
       win.cancel  = win.add('button',
-                            [wrect.w - 45,wrect.h - 45,wrect.w,wrect.h],
+                            [wrect.w - 80,wrect.h - 80,wrect.w,wrect.h],
                             self.cancelTxt);
 
       win.cancelElement = win.cancel;
@@ -10300,7 +10402,7 @@ GenericUI.prototype.createFontPanel = function(pnl, ini, label, lwidth) {
     pnl.label = pnl.add('statictext', [x,y+tOfs,x+lwidth,y+22+tOfs], label);
     x += lwidth;
   }
-  pnl.family = pnl.add('dropdownlist', [x,y,x+180,y+22]);
+  pnl.family = pnl.add('dropdownlist', [x,y,x+185,y+22]);
   x += 185;
   pnl.style  = pnl.add('dropdownlist', [x,y,x+110,y+22]);
 
@@ -13816,7 +13918,7 @@ var LabelPlus;
                 var pnl = _this.inputPnl;
                 var selectedList = getSelectedItemsText(pnl.chooseImageListBox);
                 var fileList = LabelPlus.getImageFilesListOfPath(pnl.sourceTextBox.text);
-                var replaceImgSuffix = (pnl.replaceImgSuffixCheckBox.value) ? pnl.replaceImgSuffixTextbox.text : "";
+                var replaceImgSuffix = (pnl.matchImgByOrderCheckBox.value) ? "" : pnl.replaceImgSuffixTextbox.text;
                 var matchImgByOrder = pnl.matchImgByOrderCheckBox.value;
                 var arr = [];
                 for (var i = 0; i < selectedList.length; i++) {
@@ -13832,7 +13934,7 @@ var LabelPlus;
                     else if (replaceImgSuffix !== "") {
                         arr.push({
                             file: filename,
-                            matched_file: filename.substring(0, filename.lastIndexOf(".")) + replaceImgSuffix,
+                            matched_file: filename.substring(0, filename.lastIndexOf(".") + 1) + replaceImgSuffix,
                             index: fileindex
                         });
                     }
@@ -13852,15 +13954,11 @@ var LabelPlus;
                     _this.optPickers[_this.optPickers.length] = picker;
             };
             _this.uiLpTextSelect = function (pnl) {
-                var xx = 10, yy = 10;
-                pnl.lpTextFileLabel = pnl.add('statictext', [xx, yy, xx + 120, yy + 20], I18n.LABEL_TEXT_FILE);
-                xx += 100;
-                pnl.lpTextFileTextBox = pnl.add('edittext', [xx, yy, xx + 500, yy + 20], '');
+                var xx = 185, yy = 10;
+                pnl.lpTextFileBrowseButton = pnl.add('button', [xx, yy - 10, xx + 150, yy + 35], I18n.LABEL_TEXT_FILE);
+                xx += 152;
+                pnl.lpTextFileTextBox = pnl.add('edittext', [xx, yy, xx + 385, yy + 23], '');
                 pnl.lpTextFileTextBox.enabled = false;
-                xx += 502;
-                pnl.lpTextFileBrowseButton = pnl.add('button', [xx, yy - 11, xx + 150, yy + 52], '戳戳戳我...');
-                xx += 30;
-                yy += 20;
                 pnl.lpTextFileBrowseButton.onClick = function () {
                     var inputPnl = _this.inputPnl;
                     var outputPnl = _this.outputPnl;
@@ -13933,21 +14031,20 @@ var LabelPlus;
             };
             _this.uiSettingsPanel = function (pnl) {
                 var win = GenericUI.getWindow(pnl.parent);
-                pnl.text = I18n.LABEL_SETTING;
                 pnl.fileMask = "INI Files: *.ini, All Files: *.*";
                 pnl.loadPrompt = "Read Setting";
                 pnl.savePrompt = "Save Setting";
                 pnl.defaultFile = LabelPlus.DEFAULT_INI_PATH;
                 var w = pnl.bounds[2] - pnl.bounds[0];
                 var offsets = [w * 0.2, w * 0.5, w * 0.8];
-                var y = 15;
-                var bw = 90;
-                var x = offsets[0] - (bw / 2);
-                pnl.load = pnl.add('button', [x, y, x + bw, y + 20], I18n.BUTTON_LOAD);
-                x = offsets[1] - (bw / 2);
-                pnl.save = pnl.add('button', [x, y, x + bw, y + 20], I18n.BUTTON_SAVE);
-                x = offsets[2] - (bw / 2);
-                pnl.reset = pnl.add('button', [x, y, x + bw, y + 20], I18n.BUTTON_RESET);
+                var y = 8;
+                var bw = 50;
+                var x = 0;
+                pnl.load = pnl.add('button', [x, y, x + bw, y + 35], I18n.BUTTON_LOAD);
+                x = 50;
+                pnl.save = pnl.add('button', [x, y, x + bw, y + 35], I18n.BUTTON_SAVE);
+                x = 100;
+                pnl.reset = pnl.add('button', [x, y, x + bw+30, y + 35], I18n.BUTTON_RESET);
                 pnl.load.onClick = function () {
                     var def = pnl.defaultFile;
                     var prmpt = pnl.loadPrompt;
@@ -14010,10 +14107,9 @@ var LabelPlus;
                 yy += 25;
                 pnl.matchImgByOrderCheckBox = pnl.add('checkbox', [xx, yy, xx + 190, yy + 20], I18n.CHECKBOX_MATCH_IMG_BY_ORDER);
                 pnl.matchImgByOrderCheckBox.onClick = function () {
-                    if (pnl.matchImgByOrderCheckBox.value) {
-                        pnl.replaceImgSuffixCheckBox.value = false; // incompatible to "replace image suffix"
-                        LabelPlus.Emit(pnl.replaceImgSuffixCheckBox.onClick);
-                    }
+                        var isChecked = this.value;
+                        pnl.replaceImgSuffixTextbox.enabled = !isChecked;
+                        pnl.setSourceFileTypeList.enabled = !isChecked;
                 };
                 xx += 195;
                 pnl.checkSourceMatchButton = pnl.add('button', [xx, yy - 2, xx + 80, yy + 20], I18n.BUTTON_SOURCE_CHECK_MATCH);
@@ -14033,16 +14129,7 @@ var LabelPlus;
                 };
                 xx = xOfs;
                 yy += 25;
-                pnl.replaceImgSuffixCheckBox = pnl.add('checkbox', [xx, yy, xx + 190, yy + 20], I18n.CHECKBOX_REPLACE_IMG_SUFFIX);
-                pnl.replaceImgSuffixCheckBox.onClick = function () {
-                    if (pnl.replaceImgSuffixCheckBox.value) {
-                        pnl.matchImgByOrderCheckBox.value = false; // incompatible to "match image file by order"
-                        LabelPlus.Emit(pnl.matchImgByOrderCheckBox.onClick);
-                    }
-                    var enable = pnl.replaceImgSuffixCheckBox.value;
-                    pnl.replaceImgSuffixTextbox.enabled = enable;
-                    pnl.setSourceFileTypeList.enabled = enable;
-                };
+                pnl.replaceImgSuffix = pnl.add('statictext', [xx, yy, xx + 190, yy + 20], I18n.CHECKBOX_REPLACE_IMG_SUFFIX);
                 xx += 195;
                 pnl.replaceImgSuffixTextbox = pnl.add('edittext', [xx, yy, xx + 80, yy + 20]);
                 xx += 85;
@@ -14058,18 +14145,43 @@ var LabelPlus;
                 pnl.setSourceFileTypeList.onChange = func;
                 xx = xOfs;
                 yy += 23;
+                pnl.overlayManualSourceLabel = pnl.add('statictext', [xx, yy, xx + 80, yy + 20], I18n.LABEL_OVERLAY_MANUAL_SOURCE);
+                xx += 90;
+                pnl.overlayManualSourceTextBox = pnl.add('edittext', [xx, yy, xx + 205, yy + 20], '');
+                xx += 210;
+                pnl.overlayManualSourceBrowse = pnl.add('button', [xx, yy - 2, xx + 30, yy + 20], '...');
+                pnl.overlayManualSourceBrowse.onClick = function () {
+                    try {
+                        var def = (pnl.overlayManualSourceTextBox.text ?
+                            pnl.overlayManualSourceTextBox.text :
+                            (pnl.sourceTextBox.text ? pnl.sourceTextBox.text : Folder.desktop));
+                        var f = Stdlib.selectFolder(I18n.LABEL_OVERLAY_MANUAL_SOURCE, def);
+                        if (f) {
+                            pnl.overlayManualSourceTextBox.text = f.fsName;
+                        }
+                    }
+                    catch (e) {
+                        alert(Stdlib.exceptionMessage(e));
+                    }
+                };
+                xx = xOfs;
+                yy += 25;
                 yOfs = yy;
                 pnl.chooseImageLabel = pnl.add('statictext', [xx, yy, xx + 150, yy + 20], I18n.LABEL_SELECT_IMG);
                 yy += 23;
-                pnl.chooseImageListBox = pnl.add('listbox', [xx, yy, xx + 150, yy + 265], [], { multiselect: true });
+                pnl.chooseImageListBox = pnl.add('listbox', [xx, yy, xx + 170, yy + 435], [], { multiselect: true });
                 yy = yOfs;
                 xx = xOfs + 175;
                 pnl.chooseGroupLabel = pnl.add('statictext', [xx, yy, xx + 150, yy + 20], I18n.LABEL_SELECT_GROUP);
                 yy += 23;
-                pnl.chooseGroupListBox = pnl.add('listbox', [xx, yy, xx + 150, yy + 265], [], { multiselect: true });
+                pnl.chooseGroupListBox = pnl.add('listbox', [xx, yy, xx + 150, yy + 392], [], { multiselect: true });
                 xx = xOfs;
-                yy += 270;
-                pnl.add('statictext', [xx, yy, xx + 330, yy + 44], I18n.LABEL_SELECT_TIP, { multiline: true });
+                yy += 392;
+                pnl.add('statictext', [xx + 173, yy, xx + 335, yy + 44], I18n.LABEL_SELECT_TIP, { multiline: true });
+                var opts = _this.opts;
+                if (opts.overlayManualSource !== undefined) {
+                    pnl.overlayManualSourceTextBox.text = opts.overlayManualSource;
+                }
                 var getOption = function (opts, toFile) {
                     if (!toFile) {
                         var f = new Folder(pnl.sourceTextBox.text);
@@ -14078,6 +14190,17 @@ var LabelPlus;
                             return null;
                         }
                         opts.source = f.fsName;
+                        if (pnl.overlayManualSourceTextBox.text !== "") {
+                            var omf = new Folder(pnl.overlayManualSourceTextBox.text);
+                            if (!omf || !omf.exists) {
+                                alert(I18n.ERROR_NOT_FOUND_OVERLAY_MANUAL_SOURCE);
+                                return null;
+                            }
+                            opts.overlayManualSource = omf.fsName;
+                        }
+                        else {
+                            opts.overlayManualSource = ""; // 空字符串表示不使用涂白文件夾
+                        }
                         if (!pnl.chooseImageListBox.selection || pnl.chooseImageListBox.selection.length == 0) {
                             alert(I18n.ERROR_NO_IMG_CHOOSED);
                             return null;
@@ -14196,11 +14319,12 @@ var LabelPlus;
                 var xxxOfs = 5;
                 var xxx = xxxOfs;
                 var yyy = 5;
-                pnll.autoTemplateRb = pnll.add('radiobutton', [xxx, yyy, xxx + 200, yyy + 20], I18n.RB_TEMPLATE_AUTO);
-                xxx += 200;
+                pnll.autoTemplateRb = pnll.add('radiobutton', [xxx, yyy, xxx + 100, yyy + 20], I18n.RB_TEMPLATE_AUTO);
+                xxx += 150;
                 pnll.autoTemplateRb.value = true;
-                pnll.noTemplateRb = pnll.add('statictext', [xxx, yyy, xxx + 200, yyy + 20], I18n.RB_TEMPLATE_NO);
-                xxx += 200;
+                pnll.TemplateRb1 = pnll.add('radiobutton', [xxx, yyy, xxx + 100, yyy + 20], I18n.RB_TEMPLATE_1);
+                xxx += 100;
+                pnll.TemplateRb2 = pnll.add('radiobutton', [xxx, yyy, xxx + 100, yyy + 20], I18n.RB_TEMPLATE_2);
                 xxx = xxxOfs;
                 yyy += 23;
                 pnll.customTemplateRb = pnll.add('radiobutton', [xxx, yyy, xxx + 130, yyy + 20], I18n.RB_TEMPLATE_CUSTOM);
@@ -14215,7 +14339,8 @@ var LabelPlus;
                     pnll.customTemplateTextButton.enabled = custom_enable;
                 };
                 pnll.autoTemplateRb.onClick = rbclick;
-                pnll.noTemplateRb.onClick = rbclick;
+                pnll.TemplateRb1.onClick = rbclick;
+                pnll.TemplateRb2.onClick = rbclick;
                 pnll.customTemplateRb.onClick = rbclick;
                 rbclick();
                 pnll.customTemplateTextButton.onClick = function () {
@@ -14244,7 +14369,7 @@ var LabelPlus;
                 xx += 100;
                 pnl.textDirList = pnl.add('dropdownlist', [xx, yy, xx + 100, yy + 20], I18n.LIST_TEXT_DIT_ITEMS);
                 pnl.textDirList.selection = pnl.textDirList.find(I18n.LIST_TEXT_DIT_ITEMS[0]);
-                xx += 110;
+                xx += 150;
                 pnl.FontOldStyleCheckBox = pnl.add('checkbox', [xx, yy, xx + 50, yy + 20], I18n.CHECKBOX_OLD_STYLE);
                 xx = xOfs;
                 yy += 23;
@@ -14273,22 +14398,26 @@ var LabelPlus;
                 pnl.setTextLeadingCheckBox.onClick = function () {
                     pnl.textLeadingTextBox.enabled = pnl.setTextLeadingCheckBox.value;
                 };
-                xx += 105;
+                xx += 101;
                 pnl.textLeadingTextBox = pnl.add('edittext', [xx, yy, xx + 50, yy + 20]);
                 pnl.textLeadingTextBox.enabled = false;
                 pnl.textLeadingTextBox.text = "125";
-                xx += 55;
-                pnl.add('statictext', [xx, yy, xx + 40, yy + 20], "%");
+                xx += 50;
+                pnl.add('statictext', [xx, yy, xx + 20, yy + 20], "%");
                 xx = xOfs;
                 yy += 23;
                 var opts = _this.opts;
                 if (opts.docTemplate !== undefined) {
                     pnl.docTemplatePnl.autoTemplateRb.value = false;
-                    pnl.docTemplatePnl.noTemplateRb.value = false;
+                    pnl.docTemplatePnl.TemplateRb1.value = false;
+                    pnl.docTemplatePnl.TemplateRb2.value = false;
                     pnl.docTemplatePnl.customTemplateRb.value = false;
                     switch (opts.docTemplate) {
-                        case LabelPlus.OptionDocTemplate.No:
-                            pnl.docTemplatePnl.noTemplateRb.value = true;
+                        case LabelPlus.OptionDocTemplate.Custom1:
+                            pnl.docTemplatePnl.TemplateRb1.value = true;
+                            break;
+                        case LabelPlus.OptionDocTemplate.Custom2:
+                            pnl.docTemplatePnl.TemplateRb2.value = true;
                             break;
                         case LabelPlus.OptionDocTemplate.Custom:
                             pnl.docTemplatePnl.customTemplateRb.value = true;
@@ -14330,7 +14459,11 @@ var LabelPlus;
                 }
                 var getOption = function (opts) {
                     opts.docTemplate =
-                        pnl.docTemplatePnl.autoTemplateRb.value ? LabelPlus.OptionDocTemplate.Auto : (pnl.docTemplatePnl.noTemplateRb.value ? LabelPlus.OptionDocTemplate.No : (pnl.docTemplatePnl.customTemplateRb.value ? LabelPlus.OptionDocTemplate.Custom : LabelPlus.OptionDocTemplate.Auto));
+                        pnl.docTemplatePnl.autoTemplateRb.value ? LabelPlus.OptionDocTemplate.Auto : 
+                        (pnl.docTemplatePnl.TemplateRb1.value ? LabelPlus.OptionDocTemplate.Custom1 : 
+                        (pnl.docTemplatePnl.TemplateRb2.value ? LabelPlus.OptionDocTemplate.Custom2 : 
+                        (pnl.docTemplatePnl.customTemplateRb.value ? LabelPlus.OptionDocTemplate.Custom : 
+                        LabelPlus.OptionDocTemplate.Auto)));
                     opts.docTemplateCustomPath = pnl.docTemplatePnl.customTemplateTextbox.text;
                     opts.font = pnl.font.getFont().font;
                     opts.fontenable = pnl.setFontCheckBox.value;
@@ -14346,12 +14479,12 @@ var LabelPlus;
                 var xOfs = 10, yOfs = 20;
                 var xx = xOfs, yy = yOfs;
                 pnl.text = I18n.PANEL_AUTOMATION;
-                pnl.textReplaceCheckBox = pnl.add('checkbox', [xx, yy, xx + 250, yy + 20], I18n.CHECKBOX_TEXT_REPLACE);
+                pnl.textReplaceCheckBox = pnl.add('checkbox', [xx, yy, xx + 180, yy + 20], I18n.CHECKBOX_TEXT_REPLACE);
                 pnl.textReplaceCheckBox.onClick = function () {
                     pnl.textReplaceTextBox.enabled = pnl.textReplaceCheckBox.value;
                 };
-                xx += 260;
-                pnl.textReplaceTextBox = pnl.add('edittext', [xx, yy, xx + 180, yy + 20]);
+                xx += 190;
+                pnl.textReplaceTextBox = pnl.add('edittext', [xx, yy, xx + 270, yy + 20]);
                 xx = xOfs;
                 yy += 23;
                 pnl.runActionGroupCheckBox = pnl.add('checkbox', [xx, yy, xx + 250, yy + 20], I18n.CHECKBOX_RUN_ACTION);
@@ -14447,13 +14580,12 @@ var LabelPlus;
                 _this.optPickers = [];
                 ret = _this.uiLpTextSelect(pnl);
                 _this.addToPickerList(ret.getOption);
-                yy += 40;
-                yOfs = yy;
-                _this.settingsPnl = pnl.add('panel', [xx, yy, xx + 355, yy + 50]);
+                _this.settingsPnl = pnl.add('panel', [xx - 10, yy - 10, xx + 170, yy + 35]);
                 ret = _this.uiSettingsPanel(_this.settingsPnl);
                 _this.addToPickerList(ret.getOption);
-                yy += 60;
-                _this.inputPnl = pnl.add('panel', [xx, yy, xx + 355, yy + 420]);
+                yy += 40;
+                yOfs = yy;
+                _this.inputPnl = pnl.add('panel', [xx, yy, xx + 355, yy + 580]);
                 ret = _this.uiInputPanel(_this.inputPnl);
                 _this.addToPickerList(ret.getOption);
                 xx += 365;
@@ -14493,7 +14625,7 @@ var LabelPlus;
             _this.saveIni = false;
             _this.hasBorder = false;
             _this.settingsPanel = false;
-            _this.winRect = { x: 200, y: 200, w: 875, h: 590 };
+            _this.winRect = { x: 200, y: 200, w: 865, h: 680 };
             _this.center = true;
             _this.title = I18n.APP_NAME + " " + LabelPlus.VERSION;
             _this.notesSize = 0;
@@ -14546,10 +14678,14 @@ var LabelPlus;
             LabelPlus.log_err(Stdlib.exceptionMessage(e));
         }
         if (result && (LabelPlus.errlog == "")) {
+            alert(I18n.COMPLETE);
             return;
         }
         else if (result && (LabelPlus.errlog != "")) {
             alert(I18n.COMPLETE_WITH_ERROR, "error", true);
+        }
+        else if (!result) {
+            alert(I18n.COMPLETE_FAILED, "error", true);
         }
         var logwin = new LogWindow('Error');
         logwin.append(LabelPlus.errlog);
